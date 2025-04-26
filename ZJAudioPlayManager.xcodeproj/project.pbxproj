@@ -3,50 +3,68 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AE0B4A3E092BDF7B04D5D7F6 /* Pods_ZJAudioPlayManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4ACFD23405241704A200A4E /* Pods_ZJAudioPlayManager.framework */; };
+		EB9670C32DBCE0DA00283358 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB9670BA2DBCE0DA00283358 /* Assets.xcassets */; };
+		EB9670C52DBCE0DA00283358 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB9670BD2DBCE0DA00283358 /* LaunchScreen.storyboard */; };
+		EB9670C72DBCE0DA00283358 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9670B92DBCE0DA00283358 /* AppDelegate.swift */; };
+		EB9670C92DBCE0DA00283358 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9670C12DBCE0DA00283358 /* ViewController.swift */; };
+		EB9670CB2DBCE0DC00283358 /* ZJAudioPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9670CA2DBCE0DC00283358 /* ZJAudioPlayManager.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		776E926175D9E204D47010DE /* Pods-ZJAudioPlayManager.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZJAudioPlayManager.debug.xcconfig"; path = "Target Support Files/Pods-ZJAudioPlayManager/Pods-ZJAudioPlayManager.debug.xcconfig"; sourceTree = "<group>"; };
+		E4ACFD23405241704A200A4E /* Pods_ZJAudioPlayManager.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ZJAudioPlayManager.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E92130DBB059F0CA8EFFB7B8 /* Pods-ZJAudioPlayManager.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZJAudioPlayManager.release.xcconfig"; path = "Target Support Files/Pods-ZJAudioPlayManager/Pods-ZJAudioPlayManager.release.xcconfig"; sourceTree = "<group>"; };
 		EB9670A12DBCE0C600283358 /* ZJAudioPlayManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZJAudioPlayManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB9670B92DBCE0DA00283358 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		EB9670BA2DBCE0DA00283358 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EB9670BB2DBCE0DA00283358 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EB9670BC2DBCE0DA00283358 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		EB9670C12DBCE0DA00283358 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		EB9670CA2DBCE0DC00283358 /* ZJAudioPlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZJAudioPlayManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		EB9670B32DBCE0CA00283358 /* Exceptions for "ZJAudioPlayManager" folder in "ZJAudioPlayManager" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = EB9670A02DBCE0C600283358 /* ZJAudioPlayManager */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		EB9670A32DBCE0C600283358 /* ZJAudioPlayManager */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				EB9670B32DBCE0CA00283358 /* Exceptions for "ZJAudioPlayManager" folder in "ZJAudioPlayManager" target */,
-			);
-			path = ZJAudioPlayManager;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		EB96709E2DBCE0C600283358 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE0B4A3E092BDF7B04D5D7F6 /* Pods_ZJAudioPlayManager.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3C734731670C84288D6F68FF /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				776E926175D9E204D47010DE /* Pods-ZJAudioPlayManager.debug.xcconfig */,
+				E92130DBB059F0CA8EFFB7B8 /* Pods-ZJAudioPlayManager.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		5D557981508C11A5BF9AE2B3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E4ACFD23405241704A200A4E /* Pods_ZJAudioPlayManager.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		EB9670982DBCE0C600283358 = {
 			isa = PBXGroup;
 			children = (
-				EB9670A32DBCE0C600283358 /* ZJAudioPlayManager */,
+				EB9670C22DBCE0DA00283358 /* ZJAudioPlayManager */,
 				EB9670A22DBCE0C600283358 /* Products */,
+				3C734731670C84288D6F68FF /* Pods */,
+				5D557981508C11A5BF9AE2B3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,6 +76,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		EB9670C22DBCE0DA00283358 /* ZJAudioPlayManager */ = {
+			isa = PBXGroup;
+			children = (
+				EB9670B92DBCE0DA00283358 /* AppDelegate.swift */,
+				EB9670BA2DBCE0DA00283358 /* Assets.xcassets */,
+				EB9670BB2DBCE0DA00283358 /* Info.plist */,
+				EB9670BD2DBCE0DA00283358 /* LaunchScreen.storyboard */,
+				EB9670C12DBCE0DA00283358 /* ViewController.swift */,
+				EB9670CA2DBCE0DC00283358 /* ZJAudioPlayManager.swift */,
+			);
+			path = ZJAudioPlayManager;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -65,20 +96,17 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EB9670B42DBCE0CA00283358 /* Build configuration list for PBXNativeTarget "ZJAudioPlayManager" */;
 			buildPhases = (
+				7D9E9364375F3C31DD7F0702 /* [CP] Check Pods Manifest.lock */,
 				EB96709D2DBCE0C600283358 /* Sources */,
 				EB96709E2DBCE0C600283358 /* Frameworks */,
 				EB96709F2DBCE0C600283358 /* Resources */,
+				3AF17FE73483BE24A7D58B3C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				EB9670A32DBCE0C600283358 /* ZJAudioPlayManager */,
-			);
 			name = ZJAudioPlayManager;
-			packageProductDependencies = (
-			);
 			productName = ZJAudioPlayManager;
 			productReference = EB9670A12DBCE0C600283358 /* ZJAudioPlayManager.app */;
 			productType = "com.apple.product-type.application";
@@ -107,7 +135,6 @@
 			);
 			mainGroup = EB9670982DBCE0C600283358;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = EB9670A22DBCE0C600283358 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -122,24 +149,83 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB9670C32DBCE0DA00283358 /* Assets.xcassets in Resources */,
+				EB9670C52DBCE0DA00283358 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3AF17FE73483BE24A7D58B3C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZJAudioPlayManager/Pods-ZJAudioPlayManager-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZJAudioPlayManager/Pods-ZJAudioPlayManager-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZJAudioPlayManager/Pods-ZJAudioPlayManager-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7D9E9364375F3C31DD7F0702 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ZJAudioPlayManager-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		EB96709D2DBCE0C600283358 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB9670C72DBCE0DA00283358 /* AppDelegate.swift in Sources */,
+				EB9670CB2DBCE0DC00283358 /* ZJAudioPlayManager.swift in Sources */,
+				EB9670C92DBCE0DA00283358 /* ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXVariantGroup section */
+		EB9670BD2DBCE0DA00283358 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EB9670BC2DBCE0DA00283358 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		EB9670B52DBCE0CA00283358 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 776E926175D9E204D47010DE /* Pods-ZJAudioPlayManager.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -150,9 +236,9 @@
 				INFOPLIST_FILE = ZJAudioPlayManager/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -160,14 +246,17 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.HowardExplore.ZJAudioPlayManager;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
 		EB9670B62DBCE0CA00283358 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E92130DBB059F0CA8EFFB7B8 /* Pods-ZJAudioPlayManager.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -178,9 +267,9 @@
 				INFOPLIST_FILE = ZJAudioPlayManager/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -188,9 +277,11 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.HowardExplore.ZJAudioPlayManager;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

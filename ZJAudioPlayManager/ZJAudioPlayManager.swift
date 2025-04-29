@@ -2,14 +2,21 @@
 //  ZJAudioPlayManager.swift
 //  ListenSpeak
 //
-//  Created by ios on 2025/2/24.
+//  Created by Howard-Zjun on 2025/2/24.
 //
 
 import UIKit
 import AVFoundation
 import Alamofire
+import CryptoKit
 
 let CACHE_BASE_PATH = NSHomeDirectory() + "/Library/Caches"
+
+enum AudioMode {
+    case localAudio(resourceName: String, mineType: String)
+    case audioPath(urlStr: String, preDownload: Bool)
+    case audioURL(url: URL, preDownload: Bool)
+}
 
 /*
  特性：
@@ -26,6 +33,10 @@ class ZJAudioPlayManager: NSObject {
         case notAudio // 不是音频
         case error // 错误
     }
+
+    var modes: [AudioMode] = []
+    
+    var nowIndex: Int?
     
     static let shared = ZJAudioPlayManager()
     
@@ -110,29 +121,99 @@ extension ZJAudioPlayManager {
 // MARK: - 播放/暂停/注销入口
 extension ZJAudioPlayManager {
     
+    // MARK: - 单个资源播放
     func playAudio(resourceName: String, mineType: String, beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
-        guard let url = Bundle.main.url(forResource: resourceName, withExtension: mineType) else {
-            print("[\(#file):\(#line)] \(#function) 本地音频资源不存在")
-            afterPlayBlock?(.notAudio)
-            return
-        }
-        
-        playAudio(url: url, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
+        print("[\(#file):\(#line)] \(#function) 播放本地音频: \(resourceName).\(mineType)")
+        let mode = AudioMode.localAudio(resourceName: resourceName, mineType: mineType)
+        playAudio(modes: [mode], beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
     }
     
     func playAudio(urlStr: String, preDownload: Bool = false, beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
-        if urlStr.hasPrefix("http") {
-            if let url = URL(string: urlStr) {
-                playAudio(url: url, preDownload: preDownload, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
-            } else {
-                afterPlayBlock?(.notAudio)
+        print("[\(#file):\(#line)] \(#function) 播放音频链接: \(urlStr)")
+        let mode = AudioMode.audioPath(urlStr: urlStr, preDownload: preDownload)
+        playAudio(modes: [mode], beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
+    }
+    
+    func playAudio(url: URL, preDownload: Bool = false, beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
+        print("[\(#file):\(#line)] \(#function) 播放音频路径: \(url.absoluteString)")
+        let mode = AudioMode.audioURL(url: url, preDownload: preDownload)
+        playAudio(modes: [mode], beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
+    }
+    
+    // MARK: - 多个资源播放
+    func playAudio(modes: [AudioMode], beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
+        // 处理正在播放的情况
+        if let player, player.isPlaying, !isPlayEnd {
+            let afterPlayBlock = self.afterPlayBlock
+            cleanData()
+            afterPlayBlock?(.playOther)
+        }
+        
+        let nowIndex = 0
+        self.nowIndex = nowIndex
+        self.modes = modes
+        self.beforePlayBlock = beforePlayBlock
+        self.afterPlayBlock = afterPlayBlock
+        self.progressBlock = progressBlock
+        playAudio(mode: modes[nowIndex])
+        
+        for mode in modes {
+            if case .audioPath(let urlStr, let preDownload) = mode {
+                if preDownload {
+                    if urlStr.hasPrefix("http"), let url = URL(string: urlStr){
+                        downloadAudio(url: url)
+                    }
+                }
+            } else if case .audioURL(let url, let preDownload) = mode {
+                if preDownload {
+                    downloadAudio(url: url)
+                }
             }
-        } else {
-            if FileManager.default.fileExists(atPath: urlStr) {
-                let url = URL(fileURLWithPath: urlStr)
-                playAudio(url: url, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
+        }
+    }
+    
+    private func playAudio(mode: AudioMode) {
+        player = nil
+        if case .localAudio(let resourceName, let mineType) = mode {
+            guard let url = Bundle.main.url(forResource: resourceName, withExtension: mineType) else {
+                print("[\(#file):\(#line)] \(#function) 本地音频资源不存在")
+                if modes.count == 1 {
+                    afterPlayBlock?(.normal)
+                }
+                return
+            }
+            
+            playAudio(url: url)
+        } else if case .audioPath(let urlStr, let preDownload) = mode {
+            if urlStr.hasPrefix("http") {
+                if let url = URL(string: urlStr) {
+                    if preDownload {
+                        audioURL = url
+                        // 等待下载完成继续播放
+                    } else {
+                        playAudio(url: url)
+                    }
+                } else {
+                    let afterPlayBlock = self.afterPlayBlock
+                    cleanData()
+                    afterPlayBlock?(.notAudio)
+                }
             } else {
-                afterPlayBlock?(.notAudio)
+                if FileManager.default.fileExists(atPath: urlStr) {
+                    let url = URL(fileURLWithPath: urlStr)
+                    playAudio(url: url)
+                } else {
+                    let afterPlayBlock = self.afterPlayBlock
+                    cleanData()
+                    afterPlayBlock?(.notAudio)
+                }
+            }
+        } else if case .audioURL(let url, let preDownload) = mode {
+            if preDownload {
+                audioURL = url
+                // 等待下载完成继续播放
+            } else {
+                playAudio(url: url)
             }
         }
     }
@@ -145,27 +226,8 @@ extension ZJAudioPlayManager {
         stopHandle()
     }
     
-    func playAudio(url: URL, preDownload: Bool, beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
-        if preDownload {
-            downloadAudio(url: url, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
-        } else {
-            playAudio(url: url, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
-        }
-    }
-    
-    func playAudio(url: URL, beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
-        // 处理正在播放的情况
-        if let player, player.isPlaying, !isPlayEnd {
-            currentTimer?.invalidate()
-            currentTimer = nil
-            player.stop()
-            self.afterPlayBlock?(.playOther)
-        }
-        
+    private func playAudio(url: URL) {
         self.audioURL = url
-        self.beforePlayBlock = beforePlayBlock
-        self.afterPlayBlock = afterPlayBlock
-        self.progressBlock = progressBlock
      
         if !url.absoluteString.hasPrefix("http") {
             do {
@@ -173,6 +235,8 @@ extension ZJAudioPlayManager {
                 playAudio(player: player)
             } catch {
                 print("[\(#file):\(#line)] \(#function) error: \(error)")
+                let afterPlayBlock = self.afterPlayBlock
+                cleanData()
                 afterPlayBlock?(.error)
                 return
             }
@@ -185,8 +249,10 @@ extension ZJAudioPlayManager {
                         self.playAudio(player: player)
                     }
                 } catch {
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.async { [weak self] in
                         print("[\(#file):\(#line) \(#function) error: \(error)")
+                        let afterPlayBlock = self?.afterPlayBlock
+                        self?.cleanData()
                         afterPlayBlock?(.error)
                         return
                     }
@@ -203,6 +269,8 @@ extension ZJAudioPlayManager {
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("[\(#file):\(#line)] \(#function) error: \(error)")
+            let afterPlayBlock = self.afterPlayBlock
+            cleanData()
             afterPlayBlock?(.error)
             return
         }
@@ -218,12 +286,14 @@ extension ZJAudioPlayManager {
         playHandle()
     }
     
-    private func downloadAudio(url: URL, beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
-        print("[\(#file):\(#line) \(#function) 下载")
+    private func downloadAudio(url: URL) {
+        print("[\(#file):\(#line) \(#function) 下载: \(url)")
         
         guard url.absoluteString.hasPrefix("http") else {
             print("[\(#file):\(#line)] \(#function) 不是网络链接")
-            playAudio(url: url, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
+            if audioURL == url && player == nil {
+                playAudio(url: url)
+            }
             return
         }
         let savePath = filePath(url: url)
@@ -231,14 +301,18 @@ extension ZJAudioPlayManager {
         
         if FileManager.default.fileExists(atPath: savePath) {
             print("[\(#file):\(#function)]-\(#line) 文件已存在")
-            playAudio(url: locationURL, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
+            if audioURL == url && player == nil {
+                playAudio(url: locationURL)
+            }
         } else {
             let request = AF.download(url.absoluteString, to: { temporaryURL, response in
                 return (locationURL, [.removePreviousFile, .createIntermediateDirectories])
             })
             request.response { [weak self] response in
                 print("[\(#file):\(#line)] \(#function) 下载完成")
-                self?.playAudio(url: locationURL, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock)
+                if self?.audioURL == url && self?.player == nil {
+                    self?.playAudio(url: locationURL)
+                }
             }
             request.resume()
         }
@@ -271,15 +345,27 @@ extension ZJAudioPlayManager {
     
     // 停止，不能继续播放
     private func stopHandle() {
-        currentTimer?.invalidate()
-        currentTimer = nil
-        player?.stop()
-        player = nil
         isPlayEnd = true
+        cleanData()
     }
     
     private func filePath(url: URL) -> String {
-        folderPath + "/" + RBEncrypt.md5_16(url.absoluteString) + "." + url.pathExtension
+        let digest = Insecure.MD5.hash(data: url.absoluteString.data(using: .utf8) ?? Data())
+        let str = digest.map { String(format: "%02x", $0) }.joined()
+        return folderPath + "/" + str + "." + url.pathExtension
+    }
+    
+    func cleanData() {
+        currentTimer?.invalidate()
+        currentTimer = nil
+        modes = []
+        nowIndex = nil
+        audioURL = nil
+        player?.stop()
+        player = nil
+        beforePlayBlock = nil
+        afterPlayBlock = nil
+        progressBlock = nil
     }
 }
 
@@ -287,9 +373,16 @@ extension ZJAudioPlayManager {
 extension ZJAudioPlayManager: AVAudioPlayerDelegate {
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        isPlayEnd = true
-        currentTimer?.invalidate()
-        currentTimer = nil
-        afterPlayBlock?(.normal)
+        if let nowIndex, nowIndex + 1 < modes.count {
+            print("[\(#file):\(#line)] \(#function) 播放下一个")
+            self.nowIndex = nowIndex + 1
+            playAudio(mode: modes[nowIndex + 1])
+        } else {
+            print("[\(#file):\(#line)] \(#function) 播放结束")
+            isPlayEnd = true
+            let afterPlayBlock = self.afterPlayBlock
+            cleanData()
+            afterPlayBlock?(.normal)
+        }
     }
 }

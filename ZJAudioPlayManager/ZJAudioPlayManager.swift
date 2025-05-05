@@ -48,11 +48,17 @@ class ZJAudioPlayManager: NSObject {
     /// 正常播放后
     var afterPlayBlock: ((EndType) -> Void)?
     
+    var beforePlayItemBlock: ((Int?) -> Void)?
+    
+    var afterPlayItemBlock: ((Int?, EndType) -> Void)?
+    
     var progressBlock: ((TimeInterval) -> Void)?
     
     var audioURL: URL?
     
     var isPlayEnd = false
+    
+    var continueIfError = true
     
     var folderPath: String {
         CACHE_BASE_PATH + "/" + "mp3cache"
@@ -84,6 +90,7 @@ class ZJAudioPlayManager: NSObject {
             case .began:
                 pauseHandle()
                 afterPlayBlock?(.interrupt)
+                afterPlayItemBlock?(nowIndex, .interrupt)
             case .ended:
                 guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
                 let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
@@ -114,7 +121,11 @@ class ZJAudioPlayManager: NSObject {
 extension ZJAudioPlayManager {
 
     var isPlaying: Bool {
-        return player?.isPlaying ?? false
+        if modes.count == 1 {
+            return player?.isPlaying ?? false
+        } else {
+            return !isPlayEnd
+        }
     }
 }
 
@@ -141,20 +152,37 @@ extension ZJAudioPlayManager {
     }
     
     // MARK: - 多个资源播放
-    func playAudio(modes: [AudioMode], beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
+    /// 专注于整个音频开始和结束，其中音频中断
+    func playAudio(modes: [AudioMode], continueIfError: Bool = false, beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
+        playAudio(modes: modes, continueIfError: continueIfError, beforePlayBlock: beforePlayBlock, afterPlayBlock: afterPlayBlock, progressBlock: progressBlock, beforePlayItemBlock: nil, afterPlayItemBlock: nil)
+    }
+    
+    /// 专注于每个音频的开始和结束
+    func playAudio(modes: [AudioMode], continueIfError: Bool = true, beforePlayItemBlock: ((Int?) -> Void)? = nil, afterPlayItemBlock: ((Int?, EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil) {
+        playAudio(modes: modes, continueIfError: continueIfError, beforePlayBlock: nil, afterPlayBlock: nil, progressBlock: progressBlock, beforePlayItemBlock: beforePlayItemBlock, afterPlayItemBlock: afterPlayItemBlock)
+    }
+    
+    private func playAudio(modes: [AudioMode], continueIfError: Bool, beforePlayBlock: (() -> Void)? = nil, afterPlayBlock: ((EndType) -> Void)? = nil, progressBlock: ((TimeInterval) -> Void)? = nil, beforePlayItemBlock: ((Int?) -> Void)? = nil, afterPlayItemBlock: ((Int?, EndType) -> Void)? = nil) {
         // 处理正在播放的情况
         if let player, player.isPlaying, !isPlayEnd {
             let afterPlayBlock = self.afterPlayBlock
+            let afterPlayItemBlock = self.afterPlayItemBlock
+            let index = self.nowIndex
             cleanData()
             afterPlayBlock?(.playOther)
+            afterPlayItemBlock?(index, .playOther)
         }
         
         let nowIndex = 0
         self.nowIndex = nowIndex
         self.modes = modes
+        self.continueIfError = continueIfError
         self.beforePlayBlock = beforePlayBlock
         self.afterPlayBlock = afterPlayBlock
+        self.beforePlayItemBlock = beforePlayItemBlock
+        self.afterPlayItemBlock = afterPlayItemBlock
         self.progressBlock = progressBlock
+        isPlayEnd = false
         playAudio(mode: modes[nowIndex])
         
         for mode in modes {
@@ -177,8 +205,17 @@ extension ZJAudioPlayManager {
         if case .localAudio(let resourceName, let mineType) = mode {
             guard let url = Bundle.main.url(forResource: resourceName, withExtension: mineType) else {
                 print("[\(#file):\(#line)] \(#function) 本地音频资源不存在")
-                if modes.count == 1 {
+                let afterPlayBlock = self.afterPlayBlock
+                let afterPlayItemBlock = self.afterPlayItemBlock
+                let nowIndex = self.nowIndex
+                
+                if continueIfError {
+                    afterPlayItemBlock?(nowIndex, .normal)
+                    playNext()
+                } else {
+                    cleanData()
                     afterPlayBlock?(.normal)
+                    afterPlayItemBlock?(nowIndex, .normal)
                 }
                 return
             }
@@ -195,8 +232,17 @@ extension ZJAudioPlayManager {
                     }
                 } else {
                     let afterPlayBlock = self.afterPlayBlock
-                    cleanData()
-                    afterPlayBlock?(.notAudio)
+                    let afterPlayItemBlock = self.afterPlayItemBlock
+                    let nowIndex = self.nowIndex
+                    
+                    if continueIfError {
+                        afterPlayItemBlock?(nowIndex, .notAudio)
+                        playNext()
+                    } else {
+                        cleanData()
+                        afterPlayBlock?(.notAudio)
+                        afterPlayItemBlock?(nowIndex, .notAudio)
+                    }
                 }
             } else {
                 if FileManager.default.fileExists(atPath: urlStr) {
@@ -204,8 +250,17 @@ extension ZJAudioPlayManager {
                     playAudio(url: url)
                 } else {
                     let afterPlayBlock = self.afterPlayBlock
-                    cleanData()
-                    afterPlayBlock?(.notAudio)
+                    let afterPlayItemBlock = self.afterPlayItemBlock
+                    let nowIndex = self.nowIndex
+                    
+                    if continueIfError {
+                        afterPlayItemBlock?(nowIndex, .notAudio)
+                        playNext()
+                    } else {
+                        cleanData()
+                        afterPlayBlock?(.notAudio)
+                        afterPlayItemBlock?(nowIndex, .notAudio)
+                    }
                 }
             }
         } else if case .audioURL(let url, let preDownload) = mode {
@@ -236,8 +291,17 @@ extension ZJAudioPlayManager {
             } catch {
                 print("[\(#file):\(#line)] \(#function) error: \(error)")
                 let afterPlayBlock = self.afterPlayBlock
-                cleanData()
-                afterPlayBlock?(.error)
+                let afterPlayItemBlock = self.afterPlayItemBlock
+                let nowIndex = self.nowIndex
+                
+                if continueIfError {
+                    afterPlayItemBlock?(nowIndex, .error)
+                    playNext()
+                } else {
+                    cleanData()
+                    afterPlayBlock?(.error)
+                    afterPlayItemBlock?(nowIndex, .error)
+                }
                 return
             }
         } else {
@@ -250,10 +314,20 @@ extension ZJAudioPlayManager {
                     }
                 } catch {
                     DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
                         print("[\(#file):\(#line) \(#function) error: \(error)")
-                        let afterPlayBlock = self?.afterPlayBlock
-                        self?.cleanData()
-                        afterPlayBlock?(.error)
+                        let afterPlayBlock = afterPlayBlock
+                        let afterPlayItemBlock = afterPlayItemBlock
+                        let nowIndex = nowIndex
+                        
+                        if continueIfError {
+                            afterPlayItemBlock?(nowIndex, .error)
+                            playNext()
+                        } else {
+                            cleanData()
+                            afterPlayBlock?(.error)
+                            afterPlayItemBlock?(nowIndex, .error)
+                        }
                         return
                     }
                 }
@@ -270,8 +344,17 @@ extension ZJAudioPlayManager {
         } catch {
             print("[\(#file):\(#line)] \(#function) error: \(error)")
             let afterPlayBlock = self.afterPlayBlock
-            cleanData()
-            afterPlayBlock?(.error)
+            let afterPlayItemBlock = self.afterPlayItemBlock
+            let nowIndex = self.nowIndex
+            
+            if continueIfError {
+                afterPlayItemBlock?(nowIndex, .error)
+                playNext()
+            } else {
+                cleanData()
+                afterPlayBlock?(.error)
+                afterPlayItemBlock?(nowIndex, .error)
+            }
             return
         }
         
@@ -279,8 +362,8 @@ extension ZJAudioPlayManager {
         player.delegate = self
         player.enableRate = true
         
-        isPlayEnd = false
         beforePlayBlock?()
+        beforePlayItemBlock?(nowIndex)
         player.prepareToPlay()
         
         playHandle()
@@ -365,7 +448,17 @@ extension ZJAudioPlayManager {
         player = nil
         beforePlayBlock = nil
         afterPlayBlock = nil
+        beforePlayItemBlock = nil
+        afterPlayItemBlock = nil
         progressBlock = nil
+    }
+    
+    private func playNext() {
+        guard let nowIndex = nowIndex else { return }
+        if nowIndex + 1 < modes.count {
+            self.nowIndex = nowIndex + 1
+            playAudio(mode: modes[nowIndex + 1])
+        }
     }
 }
 
@@ -373,16 +466,18 @@ extension ZJAudioPlayManager {
 extension ZJAudioPlayManager: AVAudioPlayerDelegate {
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        let afterPlayBlock = self.afterPlayBlock
+        let afterPlayItemBlock = self.afterPlayItemBlock
+        let nowIndex = self.nowIndex
         if let nowIndex, nowIndex + 1 < modes.count {
             print("[\(#file):\(#line)] \(#function) 播放下一个")
-            self.nowIndex = nowIndex + 1
-            playAudio(mode: modes[nowIndex + 1])
+            afterPlayItemBlock?(nowIndex, .normal)
+            playNext()
         } else {
             print("[\(#file):\(#line)] \(#function) 播放结束")
-            isPlayEnd = true
-            let afterPlayBlock = self.afterPlayBlock
             cleanData()
             afterPlayBlock?(.normal)
+            afterPlayItemBlock?(nowIndex, .normal)
         }
     }
 }
